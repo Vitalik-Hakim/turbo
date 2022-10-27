@@ -90,6 +90,10 @@ jobs:
           description: Installing Node.js dependencies...
           url: https://github.com/vercel/the-three-body/actions/runs/${{ github.run_id }}
 
+      - uses: ./.github/actions/setup-go
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
       - uses: ./.github/actions/setup-node
         if: matrix.os.name != 'windows-latest'
 
@@ -114,11 +118,10 @@ jobs:
         shell: bash
 
       - name: Run nextest
-        uses: actions-rs/cargo@v1
         timeout-minutes: 120
-        with:
-          command: nextest
-          args: run --release --no-fail-fast
+        shell: bash
+        run: |
+          cargo nextest run --release --no-fail-fast
 
       - name: Report github status
         if: always() && github.event_name == 'pull_request'
@@ -180,6 +183,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - uses: ./.github/actions/setup-go
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Report progress
         if: github.event_name == 'pull_request'
